@@ -6,7 +6,9 @@ interface UserProfile {
     id: string;
     email: string;
     firstName: string;
+    first_name: string;
     lastName: string;
+    last_name: string;
     zoomConnected?: boolean;
     zohoConnected?: boolean;
 }
