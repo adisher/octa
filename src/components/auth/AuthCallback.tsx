@@ -36,16 +36,17 @@ const AuthCallback: React.FC = () => {
                         setTimeout(() => {
                             navigate('/dashboard');
                         }, 1000);
-                    } catch (parseErr) {
+                    } catch (parseErr: unknown) {
                         console.error('Error parsing user data:', parseErr);
-                        setError('Failed to parse authentication data. Error: ' + parseErr.message);
+                        setError('Failed to parse authentication data. Error: ' +
+                            (parseErr instanceof Error ? parseErr.message : 'Unknown error'));
                     }
                 } else {
                     setError('No authentication data found in URL.');
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Auth callback error:', err);
-                setError(`Authentication error: ${err.message}`);
+                setError(`Authentication error: ${err instanceof Error ? err.message : 'Unknown error'}`);
             }
         };
 

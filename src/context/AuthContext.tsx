@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx (updated)
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
@@ -19,6 +18,7 @@ interface AuthContextType {
     loading: boolean;
     login: (profile: UserProfile) => void;
     checkAuthStatus: () => Promise<boolean>;
+    setAuthData: (userId: string, userData: any) => void;
     logout: () => Promise<void>;
 }
 
@@ -85,6 +85,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    // Implement the missing setAuthData method
+    const setAuthData = (userId: string, userData: any) => {
+        if (userProfile && userProfile.id === userId) {
+            setUserProfile({ ...userProfile, ...userData });
+        }
+    };
+
     const logout = async () => {
         try {
             await axios.post('http://localhost:4000/api/users/logout', {}, {
@@ -105,6 +112,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             loading,
             login,
             checkAuthStatus,
+            setAuthData, // Added the missing setAuthData method
             logout,
         }}>
             {children}

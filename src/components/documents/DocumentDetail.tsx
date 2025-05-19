@@ -21,7 +21,7 @@ interface DocumentDetail {
 const DocumentDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { getDocumentStatus, downloadDocument } = useDocuments();
+    const { downloadDocument } = useDocuments();
     const [document, setDocument] = useState<DocumentDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -78,13 +78,15 @@ const DocumentDetail: React.FC = () => {
             setLoading(false);
         }
     };
+
     const resetDocument = async () => {
         if (!id) return;
 
         try {
             setLoading(true);
 
-            const response = await axios.post(`http://localhost:4000/api/esign/documents/${id}/reset`, {}, {
+            // Make the API call but no need to store the response if we're not using it
+            await axios.post(`http://localhost:4000/api/esign/documents/${id}/reset`, {}, {
                 withCredentials: true
             });
 
@@ -112,9 +114,8 @@ const DocumentDetail: React.FC = () => {
         return <div className="text-center my-10">Loading document details...</div>;
     }
 
-    // Add this in your JSX
-    {
-        error && (
+    if (error) {
+        return (
             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4">
                 <p>{error}</p>
                 {needsReset && (
@@ -129,7 +130,7 @@ const DocumentDetail: React.FC = () => {
                     </div>
                 )}
             </div>
-        )
+        );
     }
 
     if (!document) {
@@ -142,10 +143,10 @@ const DocumentDetail: React.FC = () => {
 
             <div className="mb-6">
                 <span className={`inline-block px-2 py-1 rounded-full text-xs ${document.status === 'completed' ? 'bg-green-200 text-green-800' :
-                        document.status === 'sent' ? 'bg-blue-200 text-blue-800' :
-                            document.status === 'viewed' ? 'bg-purple-200 text-purple-800' :
-                                document.status === 'declined' ? 'bg-red-200 text-red-800' :
-                                    'bg-gray-200 text-gray-800'
+                    document.status === 'sent' ? 'bg-blue-200 text-blue-800' :
+                        document.status === 'viewed' ? 'bg-purple-200 text-purple-800' :
+                            document.status === 'declined' ? 'bg-red-200 text-red-800' :
+                                'bg-gray-200 text-gray-800'
                     }`}>
                     {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
                 </span>
@@ -183,9 +184,9 @@ const DocumentDetail: React.FC = () => {
                                         <td className="px-4 py-2">{signer.email}</td>
                                         <td className="px-4 py-2">
                                             <span className={`inline-block px-2 py-1 rounded-full text-xs ${signer.status === 'completed' ? 'bg-green-200 text-green-800' :
-                                                    signer.status === 'viewed' ? 'bg-purple-200 text-purple-800' :
-                                                        signer.status === 'declined' ? 'bg-red-200 text-red-800' :
-                                                            'bg-yellow-200 text-yellow-800'
+                                                signer.status === 'viewed' ? 'bg-purple-200 text-purple-800' :
+                                                    signer.status === 'declined' ? 'bg-red-200 text-red-800' :
+                                                        'bg-yellow-200 text-yellow-800'
                                                 }`}>
                                                 {signer.status.charAt(0).toUpperCase() + signer.status.slice(1)}
                                             </span>

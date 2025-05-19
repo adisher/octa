@@ -58,7 +58,12 @@ const MeetingRoomPage: React.FC = () => {
                 setError('Failed to get authentication token');
             }
         } catch (err: any) {
-            setError(`Authentication error: ${err.response?.data?.error || err.message}`);
+            // Check if the error was about Zoom not being connected
+            if (err.response?.data?.error?.includes('Zoom integration not connected')) {
+                setError('Your account is not connected to Zoom. Please connect with Zoom first.');
+            } else {
+                setError(`Authentication error: ${err.response?.data?.error || err.message}`);
+            }
         } finally {
             setLoading(false);
         }
@@ -89,43 +94,6 @@ const MeetingRoomPage: React.FC = () => {
 
     // Initialize when component mounts if authenticated
     useEffect(() => {
-        const getAuthenticatedJWT = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const response = await axios.post(
-                    'http://localhost:4000/authenticated',
-                    {
-                        sessionName: config.sessionName,
-                        role: 1
-                    },
-                    { withCredentials: true }
-                );
-
-                if (response.data.signature) {
-                    setConfig(prev => ({
-                        ...prev,
-                        videoSDKJWT: response.data.signature,
-                        userName: `${response.data.user.firstName} ${response.data.user.lastName}`
-                    }));
-
-                    joinSession(response.data.signature);
-                } else {
-                    setError('Failed to get authentication token');
-                }
-            } catch (err: any) {
-                // Check if the error was about Zoom not being connected
-                if (err.response?.data?.error?.includes('Zoom integration not connected')) {
-                    setError('Your account is not connected to Zoom. Please connect with Zoom first.');
-                } else {
-                    setError(`Authentication error: ${err.response?.data?.error || err.message}`);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
         if (isAuthenticated) {
             getAuthenticatedJWT();
         }
@@ -134,7 +102,7 @@ const MeetingRoomPage: React.FC = () => {
         return () => {
             uitoolkit.destroy();
         };
-    }, [config.sessionName, isAuthenticated, joinSession]);
+    }, [isAuthenticated]);
 
     if (!isAuthenticated) {
         return (
